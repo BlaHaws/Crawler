@@ -48,11 +48,12 @@ class PdfSpider(scrapy.Spider):
     def parse_pdf(self, response):
         if self.download_count > 0:  # Skip if we already downloaded one
             return
-        # Download the PDF
-        pdf_bytes = response.body
-        self.download_count += 1  # Increment counter
-        # Create a temporary file
-        with tempfile.NamedTemporaryFile(delete=False) as temp_file:
+        try:
+            # Download the PDF
+            pdf_bytes = response.body
+            self.download_count += 1  # Increment counter
+            # Create a temporary file
+            with tempfile.NamedTemporaryFile(delete=False) as temp_file:
             temp_file.write(pdf_bytes)
             temp_file_path = temp_file.name
             # Parse PDF content
@@ -80,3 +81,6 @@ class PdfSpider(scrapy.Spider):
                                       index=False)
         # Delete the temporary file
         os.remove(temp_file_path)
+        except Exception as e:
+            self.logger.error(f"Failed to process PDF: {str(e)}")
+            self.download_count -= 1  # Decrement counter since download failed

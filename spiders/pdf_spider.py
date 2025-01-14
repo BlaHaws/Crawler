@@ -16,14 +16,14 @@ class PdfSpider(scrapy.Spider):
         # Use BeautifulSoup to parse the response
         soup = BeautifulSoup(response.text, 'html.parser')
         # Find product category links with BeautifulSoup
-        category_links = soup.find_all('a', class_='preFade fadeIn')
+        category_links = soup.select('div nav div a[href]')
         for link in category_links:
             yield response.follow(link.get('href'), callback=self.parse_category, dont_filter=True)
 
     def parse_category(self, response):
         soup = BeautifulSoup(response.text, 'html.parser')
         # Find product links
-        product_links = soup.find_all('a', class_='blog-more-link preFade fadeIn')
+        product_links = soup.select('a.blog-more-link')
         for link in product_links:
             yield response.follow(link.get('href'), callback=self.parse_product)
         
@@ -35,7 +35,7 @@ class PdfSpider(scrapy.Spider):
     def parse_product(self, response):
         soup = BeautifulSoup(response.text, 'html.parser')
         # Find Google Drive link
-        drive_link = soup.select_one('p.preFade.fadeIn > a')
+        drive_link = soup.select_one('p a(href)')
         if drive_link:
             yield response.follow(drive_link.get('href'), callback=self.parse_pdf)
 

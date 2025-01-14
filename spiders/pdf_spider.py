@@ -38,7 +38,7 @@ class PdfSpider(scrapy.Spider):
     def parse_product(self, response):
         soup = BeautifulSoup(response.text, 'html.parser')
         # Find Google Drive link
-        drive_link = soup.select_one('p a(href)')
+        drive_link = soup.select_one('p a[href]')
         if drive_link:
             yield response.follow(drive_link.get('href'),
                                   callback=self.parse_pdf)

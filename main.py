@@ -1,19 +1,24 @@
-import scrapy
 
-#from src.data.preprocessing import preprocess_data  # Import preprocessing function
-from spiders.pdf_spider import PdfSpider  # Import the spider
+import scrapy
+from twisted.internet import reactor
+from scrapy.crawler import CrawlerRunner
+from scrapy.utils.log import configure_logging
+from spiders.pdf_spider import PdfSpider
 
 if __name__ == '__main__':
+    # Configure logging
+    configure_logging()
+    
     # Create a Scrapy crawler object
-    crawler = scrapy.crawler.CrawlerRunner({
-        'USER_AGENT': 'Mozilla/5.0',  # Set the user agent for the crawler
+    runner = CrawlerRunner({
+        'USER_AGENT': 'Mozilla/5.0',
     })
 
     # Add the spider to the crawler
-    crawler.crawl(PdfSpider)
-
+    d = runner.crawl(PdfSpider)
+    
+    # Add callback to stop reactor
+    d.addBoth(lambda _: reactor.stop())
+    
     # Start the crawler
-    crawler.start()
-
-    # Preprocess the extracted data
-    #preprocess_data()  # Call the preprocessing function
+    reactor.run()

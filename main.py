@@ -1,7 +1,7 @@
 import scrapy
 
 #from src.data.preprocessing import preprocess_data  # Import preprocessing function
-from spiders.pdf_spider import PdfSpider # Import the spider
+from spiders.pdf_spider import PdfSpider  # Import the spider
 
 if __name__ == '__main__':
     # Create a Scrapy crawler object

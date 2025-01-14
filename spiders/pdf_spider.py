@@ -14,7 +14,7 @@ class PdfSpider(scrapy.Spider):
         # Find product category links
         for category_link in response.css(
                 'a.preFade.fadeIn::attr(href)').getall():
-            yield response.follow(category_link, callback=self.parse_category)
+            yield response.follow(category_link, callback=self.parse_category, dont_filter=True)
 
     def parse_category(self, response):
         # Find product links and next page link

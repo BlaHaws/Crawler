@@ -21,8 +21,7 @@ class PdfSpider(scrapy.Spider):
         for product_link in response.css(
                 'a.blog-more-link.preFade.fadeIn::attr(href)').getall():
             yield response.follow(product_link,
-                                  callback=self.parse_product,
-                                  dont_filter=True)
+                                  callback=self.parse_product)
         next_page_link = response.css('div.older > a::attr(href)').get()
         if next_page_link:
             yield response.follow(next_page_link, callback=self.parse_category)

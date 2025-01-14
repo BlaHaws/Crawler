@@ -1,4 +1,3 @@
-
 import scrapy
 from bs4 import BeautifulSoup
 import pdfplumber
@@ -18,29 +17,34 @@ class PdfSpider(scrapy.Spider):
         # Find product category links with BeautifulSoup
         category_links = soup.select('div nav div a[href]')
         for link in category_links:
-            yield response.follow(link.get('href'), callback=self.parse_category, dont_filter=True)
+            yield response.follow(link.get('href'),
+                                  callback=self.parse_category,
+                                  dont_filter=True)
 
     def parse_category(self, response):
         soup = BeautifulSoup(response.text, 'html.parser')
         # Find product links
         product_links = soup.select('a.blog-more-link')
         for link in product_links:
-            yield response.follow(link.get('href'), callback=self.parse_product)
-        
+            yield response.follow(link.get('href'),
+                                  callback=self.parse_product)
+
         # Find next page link
-        next_page = soup.select_one('div.older > a')
+        next_page = soup.select_one('div a[href]')
         if next_page:
-            yield response.follow(next_page.get('href'), callback=self.parse_category)
+            yield response.follow(next_page.get('href'),
+                                  callback=self.parse_category)
 
     def parse_product(self, response):
         soup = BeautifulSoup(response.text, 'html.parser')
         # Find Google Drive link
         drive_link = soup.select_one('p a(href)')
         if drive_link:
-            yield response.follow(drive_link.get('href'), callback=self.parse_pdf)
+            yield response.follow(drive_link.get('href'),
+                                  callback=self.parse_pdf)
 
     download_count = 0  # Class variable to track downloads
-    
+
     def parse_pdf(self, response):
         if self.download_count > 0:  # Skip if we already downloaded one
             return
@@ -56,8 +60,8 @@ class PdfSpider(scrapy.Spider):
                 for page in pdf.pages:
                     # Extract tables
                     tables = tabula.read_pdf(temp_file_path,
-                                           pages=page.page_number,
-                                           multiple_tables=True)
+                                             pages=page.page_number,
+                                             multiple_tables=True)
                     for table in tables:
                         # Extract table header text
                         header_text = table.df.columns.tolist()[0]
@@ -65,14 +69,14 @@ class PdfSpider(scrapy.Spider):
                         if "Cannabinoids" in header_text:
                             df = pd.DataFrame(table)
                             df.to_csv('extracted_data.csv',
-                                    mode='a',
-                                    header=False,
-                                    index=False)
+                                      mode='a',
+                                      header=False,
+                                      index=False)
                         elif "Terpenes" in header_text:
                             df = pd.DataFrame(table)
                             df.to_csv('extracted_data.csv',
-                                    mode='a',
-                                    header=False,
-                                    index=False)
+                                      mode='a',
+                                      header=False,
+                                      index=False)
         # Delete the temporary file
         os.remove(temp_file_path)

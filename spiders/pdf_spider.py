@@ -43,19 +43,14 @@ class PdfSpider(scrapy.Spider):
             yield response.follow(drive_link.get('href'),
                                   callback=self.parse_pdf)
 
-    download_count = 0  # Class variable to track downloads
-
     def parse_pdf(self, response):
-        if self.download_count > 0:  # Skip if we already downloaded one
-            return
         try:
             # Download the PDF
             pdf_bytes = response.body
-            self.download_count += 1  # Increment counter
             # Create a temporary file
             with tempfile.NamedTemporaryFile(delete=False) as temp_file:
-            temp_file.write(pdf_bytes)
-            temp_file_path = temp_file.name
+                temp_file.write(pdf_bytes)
+                temp_file_path = temp_file.name
             # Parse PDF content
             with pdfplumber.open(temp_file_path) as pdf:
                 for page in pdf.pages:
